@@ -5,4 +5,5 @@ function calculateChinesePercentage(inputString) {
   return percentage;
 }
 
+
 module.exports = { calculateChinesePercentage };

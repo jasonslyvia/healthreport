@@ -13,9 +13,9 @@
     "chalk": "^4.0.0",
     "compute-cosine-similarity": "^1.0.0",
     "openai": "^3.2.1",
-    "pdf-parse": "^1.1.1",
-    "pdf2html": "^3.1.0",
-    "pdf2table": "^0.0.2",
-    "xlsx": "^0.18.5"
+    "pdf2html": "^3.1.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.38.0"
   }
 }

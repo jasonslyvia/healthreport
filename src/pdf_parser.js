@@ -1,9 +1,13 @@
 const PDFServicesSdk = require('@adobe/pdfservices-node-sdk');
+const path = require('path');
+const AdmZip = require('adm-zip');
+const chalk = require('chalk');
+const promisify = require('util').promisify;
+const fs = require('fs');
 
-// Initial setup, create credentials instance.
 const credentials = PDFServicesSdk.Credentials
   .serviceAccountCredentialsBuilder()
-  .fromFile(__dirname + '/adobe_credentials.json')
+  .fromFile(path.resolve(__dirname, '../adobe_credentials.json'))
   .build();
 
 const clientConfig = PDFServicesSdk.ClientConfig
@@ -12,10 +16,7 @@ const clientConfig = PDFServicesSdk.ClientConfig
   .withReadTimeout(60000)
   .build();
 
-// Create an ExecutionContext using credentials
 const executionContext = PDFServicesSdk.ExecutionContext.create(credentials, clientConfig);
-
-// Build extractPDF options
 const options = new PDFServicesSdk.ExtractPDF.options.ExtractPdfOptions.Builder()
   .addElementsToExtract(
     PDFServicesSdk.ExtractPDF.options.ExtractElementType.TABLES
@@ -23,36 +24,44 @@ const options = new PDFServicesSdk.ExtractPDF.options.ExtractPdfOptions.Builder(
   .addTableStructureFormat('csv')
   .build()
 
-async function parsePDF(filePath) {
+async function parsePDFByAdobe(filePath) {
+  const outputFilePath = filePath.replace('.pdf', '.zip');
+  const extractDir = outputFilePath.split('.')[0];
+
+  if (fs.existsSync(extractDir)) {
+    console.log(chalk.dim(`已经解析过 ${filePath}，跳过`));
+    return;
+  }
+  
   console.log(`开始解析 ${filePath}`);
   try {
-    // Create a new operation instance.
     const extractPDFOperation = PDFServicesSdk.ExtractPDF.Operation.createNew(),
       input = PDFServicesSdk.FileRef.createFromLocalFile(
         filePath,
         PDFServicesSdk.ExtractPDF.SupportedSourceFormat.pdf
       );
 
-    // Set operation input from a source file.
     extractPDFOperation.setInput(input);
-
-    // Set options
     extractPDFOperation.setOptions(options);
 
-    //Generating a file name
-    let outputFilePath = `reports/output/${filePath.split('/').pop().split('.')[0]}.zip}`;
-
     console.log(`提交至 Adobe 处理`);
-
     const result = await extractPDFOperation.execute(executionContext);
     console.log(`解析完成，保存至 ${outputFilePath}}`);
 
     await result.saveAsFile(outputFilePath);
+    const zip = new AdmZip(outputFilePath);
+    console.log('解压', outputFilePath);
+    await promisify(zip.extractAllToAsync)(extractDir, true);
   } catch (err) {
-    console.log('Exception encountered while executing operation', err);
+    console.log('提交 Adobe 解析 PDF 出错', err);
   }
-
 }
 
+async function preProcessPDFsToTable(pdfs) {
+  console.log(chalk.bgWhite('开始解析报告'));
+  console.log(chalk.bgWhite(`共有 ${pdfs.length} 份报告`));
 
-module.exports = { parsePDF }
+  return Promise.all(pdfs.map(pdf => parsePDFByAdobe(pdf)));
+}
+
+module.exports = { preProcessPDFsToTable }
