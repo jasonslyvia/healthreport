@@ -1,0 +1,7 @@
+node_modules/
+*DS_Store*
+reports/
+cache/
+private.key
+adobe_credentials.json
+.vscode/

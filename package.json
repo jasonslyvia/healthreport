@@ -1,0 +1,21 @@
+{
+  "name": "healthreport",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@adobe/pdfservices-node-sdk": "^3.2.0",
+    "chalk": "^4.0.0",
+    "compute-cosine-similarity": "^1.0.0",
+    "openai": "^3.2.1",
+    "pdf-parse": "^1.1.1",
+    "pdf2html": "^3.1.0",
+    "pdf2table": "^0.0.2",
+    "xlsx": "^0.18.5"
+  }
+}
