@@ -57,7 +57,7 @@ async function answerQuestion(embeddingCache) {
 
     console.log(chalk.cyan(`调用 OpenAI 接口回答问题`));
 
-    console.log(chalk.dim(`最终 prompt: ${finalQuery}`));
+    // console.log(chalk.dim(`最终 prompt: ${finalQuery}`));
     HISTORY.push({ role: 'user', content: finalQuery });
 
     try {
